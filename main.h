@@ -18,6 +18,9 @@ typedef struct spec
 
 int _printf(const char *format, ...);
 int _putchar(char c);
+void flush_buffer(char *buf, int *idx);
+void buffer_add(char *buf, int *idx, char c);
+int handle_specifier(char c, va_list args, char *buf, int *idx);
 int print_char(va_list args);
 int print_string(va_list args);
 int print_percent(va_list args);
@@ -29,6 +32,7 @@ int print_octal(va_list args);
 int print_hex_lower(va_list args);
 int print_hex_upper(va_list args);
 int print_S(va_list args);
+int print_pointer(va_list args);
 int (*get_func(char s))(va_list);
 
 #endif /* MAIN_H */
