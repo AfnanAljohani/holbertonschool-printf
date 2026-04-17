@@ -88,3 +88,28 @@ int print_int_helper(unsigned int n)
 	(void)n;
 	return (0);
 }
+
+/**
+ * print_binary - prints unsigned int in binary
+ * @args: va_list containing the unsigned int
+ * Return: number of characters printed
+ */
+int print_binary(va_list args)
+{
+	unsigned int n;
+	char buf[32];
+	int i = 31;
+	int count;
+
+	n = va_arg(args, unsigned int);
+	if (n == 0)
+		return (write(1, "0", 1));
+	while (n > 0)
+	{
+		buf[i--] = '0' + (n % 2);
+		n /= 2;
+	}
+	count = 31 - i;
+	write(1, &buf[i + 1], count);
+	return (count);
+}
