@@ -1,135 +1,103 @@
 #include "main.h"
 
 /**
- * print_unsigned - prints unsigned int
- * @args: va_list containing the argument
- * Return: number of characters printed
+ * print_unsigned - prints unsigned int using single write
+ * @args: va_list
+ * Return: chars printed
  */
 int print_unsigned(va_list args)
 {
 	unsigned int n;
+	char buf[12];
+	int i = 11;
 	int count;
-	int digits[32];
-	int i;
 
 	n = va_arg(args, unsigned int);
 	if (n == 0)
-		return (_putchar('0'));
-	i = 0;
+		return (write(1, "0", 1));
 	while (n > 0)
 	{
-		digits[i] = n % 10;
+		buf[i--] = '0' + (n % 10);
 		n /= 10;
-		i++;
 	}
-	count = 0;
-	i--;
-	while (i >= 0)
-	{
-		_putchar('0' + digits[i]);
-		count++;
-		i--;
-	}
+	count = 11 - i;
+	write(1, &buf[i + 1], count);
 	return (count);
 }
 
 /**
- * print_octal - prints unsigned int in octal
- * @args: va_list containing the argument
- * Return: number of characters printed
+ * print_octal - prints octal using single write
+ * @args: va_list
+ * Return: chars printed
  */
 int print_octal(va_list args)
 {
 	unsigned int n;
+	char buf[16];
+	int i = 15;
 	int count;
-	int digits[32];
-	int i;
 
 	n = va_arg(args, unsigned int);
 	if (n == 0)
-		return (_putchar('0'));
-	i = 0;
+		return (write(1, "0", 1));
 	while (n > 0)
 	{
-		digits[i] = n % 8;
+		buf[i--] = '0' + (n % 8);
 		n /= 8;
-		i++;
 	}
-	count = 0;
-	i--;
-	while (i >= 0)
-	{
-		_putchar('0' + digits[i]);
-		count++;
-		i--;
-	}
+	count = 15 - i;
+	write(1, &buf[i + 1], count);
 	return (count);
 }
 
 /**
- * print_hex_lower - prints unsigned int in hex lowercase
- * @args: va_list containing the argument
- * Return: number of characters printed
+ * print_hex_lower - prints hex lowercase using single write
+ * @args: va_list
+ * Return: chars printed
  */
 int print_hex_lower(va_list args)
 {
 	unsigned int n;
+	char buf[16];
+	int i = 15;
 	int count;
-	int digits[32];
-	int i;
 	char *hex = "0123456789abcdef";
 
 	n = va_arg(args, unsigned int);
 	if (n == 0)
-		return (_putchar('0'));
-	i = 0;
+		return (write(1, "0", 1));
 	while (n > 0)
 	{
-		digits[i] = n % 16;
+		buf[i--] = hex[n % 16];
 		n /= 16;
-		i++;
 	}
-	count = 0;
-	i--;
-	while (i >= 0)
-	{
-		_putchar(hex[digits[i]]);
-		count++;
-		i--;
-	}
+	count = 15 - i;
+	write(1, &buf[i + 1], count);
 	return (count);
 }
 
 /**
- * print_hex_upper - prints unsigned int in hex uppercase
- * @args: va_list containing the argument
- * Return: number of characters printed
+ * print_hex_upper - prints hex uppercase using single write
+ * @args: va_list
+ * Return: chars printed
  */
 int print_hex_upper(va_list args)
 {
 	unsigned int n;
+	char buf[16];
+	int i = 15;
 	int count;
-	int digits[32];
-	int i;
 	char *hex = "0123456789ABCDEF";
 
 	n = va_arg(args, unsigned int);
 	if (n == 0)
-		return (_putchar('0'));
-	i = 0;
+		return (write(1, "0", 1));
 	while (n > 0)
 	{
-		digits[i] = n % 16;
+		buf[i--] = hex[n % 16];
 		n /= 16;
-		i++;
 	}
-	count = 0;
-	i--;
-	while (i >= 0)
-	{
-		_putchar(hex[digits[i]]);
-		count++;
-		i--;
-	}
+	count = 15 - i;
+	write(1, &buf[i + 1], count);
 	return (count);
 }
