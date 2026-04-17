@@ -46,3 +46,84 @@ int print_percent(va_list args)
 	write(1, "%", 1);
 	return (1);
 }
+
+/**
+ * print_binary - Prints an unsigned int in binary
+ * @args: va_list of arguments
+ * Return: Number of characters printed
+ */
+int print_binary(va_list args)
+{
+	unsigned int n;
+	unsigned int bits[32];
+	int i;
+	int count;
+
+	n = va_arg(args, unsigned int);
+	i = 0;
+	count = 0;
+	if (n == 0)
+	{
+		write(1, "0", 1);
+		return (1);
+	}
+	while (n > 0)
+	{
+		bits[i] = n % 2;
+		n /= 2;
+		i++;
+	}
+	i--;
+	while (i >= 0)
+	{
+		write(1, bits[i] ? "1" : "0", 1);
+		count++;
+		i--;
+	}
+	return (count);
+}
+
+/**
+ * print_int - prints an integer
+ * @args: va_list containing the integer
+ * Return: number of characters printed
+ */
+int print_int(va_list args)
+{
+	int n;
+	int count;
+	unsigned int num;
+
+	n = va_arg(args, int);
+	count = 0;
+	if (n < 0)
+	{
+		write(1, "-", 1);
+		count++;
+		num = -n;
+	}
+	else
+		num = n;
+	if (num / 10)
+		count += print_int_helper(num / 10);
+	_putchar('0' + (num % 10));
+	count++;
+	return (count);
+}
+
+/**
+ * print_int_helper - helper to print digits recursively
+ * @n: the number
+ * Return: number of digits printed
+ */
+int print_int_helper(unsigned int n)
+{
+	int count;
+
+	count = 0;
+	if (n / 10)
+		count += print_int_helper(n / 10);
+	_putchar('0' + (n % 10));
+	count++;
+	return (count);
+}
