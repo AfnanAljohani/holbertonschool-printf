@@ -1,17 +1,50 @@
 #include "main.h"
-#include <stdarg.h>
 
 /**
- * _printf - Custom printf function
- * @format: Format string
+ * struct format_s - Struct for format specifiers
+ * @spec: The format specifier character
+ * @func: The function to handle it
+ */
+typedef struct format_s
+{
+	char spec;
+	int (*func)(va_list);
+} format_t;
+
+/**
+ * get_func - Returns the function matching the specifier
+ * @s: The specifier character
+ * @ops: Array of format_t structs
+ * Return: Pointer to function, or NULL
+ */
+int (*get_func(char s, format_t *ops))(va_list)
+{
+	int i;
+
+	for (i = 0; ops[i].func != NULL; i++)
+	{
+		if (ops[i].spec == s)
+			return (ops[i].func);
+	}
+	return (NULL);
+}
+
+/**
+ * _printf - Produces output according to a format
+ * @format: The format string
  * Return: Number of characters printed
  */
 int _printf(const char *format, ...)
 {
 	va_list args;
-	int count = 0;
-	int i = 0;
+	int i = 0, count = 0;
 	int (*func)(va_list);
+	format_t ops[] = {
+		{'c', print_char},
+		{'s', print_string},
+		{'%', print_percent},
+		{0, NULL}
+	};
 
 	if (format == NULL)
 		return (-1);
@@ -21,23 +54,16 @@ int _printf(const char *format, ...)
 		if (format[i] == '%')
 		{
 			i++;
-			if (format[i] == 'c')
-				func = print_char;
-			else if (format[i] == 's')
-				func = print_string;
-			else if (format[i] == '%')
-				func = print_percent;
-			else if (format[i] == 'd' || format[i] == 'i')
-				func = print_int;
+			if (format[i] == '\0')
+				return (-1);
+			func = get_func(format[i], ops);
+			if (func)
+				count += func(args);
 			else
 			{
-				write(1, "%", 1);
-				write(1, &format[i], 1);
-				count += 2;
-				i++;
-				continue;
+				count += write(1, "%", 1);
+				count += write(1, &format[i], 1);
 			}
-			count += func(args);
 		}
 		else
 		{
