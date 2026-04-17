@@ -1,152 +1,57 @@
-.TH _PRINTF 3 "April 2026" "Holberton School" "Custom Library Functions"
-
+.TH _printf 3 "17 April 2026" "1.0" "_printf man page"
 .SH NAME
-_printf \- formatted output conversion
-
+_printf \- print formatted output to stdout
 .SH SYNOPSIS
 .B #include "main.h"
-.PP
-.BI "int _printf(const char *" format ", ...);"
-
+.br
+.B int _printf(const char *format, ...);
 .SH DESCRIPTION
-The
-.B _printf()
-function produces output according to a
-.I format
-string. It writes output to the standard output stream
-.BR stdout .
-.PP
-The format string is composed of zero or more directives: ordinary characters
-(not
-.BR % ),
-which are copied unchanged to the output stream, and conversion
-specifications, each of which fetches zero or more subsequent arguments.
-.PP
-Each conversion specification is introduced by the character
-.BR % .
-The arguments must correspond properly (after type promotion) with the
-conversion specifier.
-
-.SS Conversion Specifiers
-The following conversion specifiers are supported:
-.TP 8
+The _printf() function writes output to stdout under the control of a format string.
+.SH CONVERSION SPECIFIERS
+.TP
 .B %c
-The
-.I int
-argument is converted to an
-.IR "unsigned char" ,
-and the resulting character is written.
+Prints a single character.
 .TP
 .B %s
-The
-.I "const char *"
-argument is expected to be a pointer to a character array (string).
-Characters from the array are written up to (but not including) a
-terminating null byte. If the pointer is
-.BR NULL ,
-the string
-.B (null)
-is printed instead.
+Prints a string.
+.TP
+.B %d, %i
+Prints a signed decimal integer.
+.TP
+.B %u
+Prints an unsigned decimal integer.
+.TP
+.B %o
+Prints an unsigned octal.
+.TP
+.B %x
+Prints unsigned hexadecimal (lowercase).
+.TP
+.B %X
+Prints unsigned hexadecimal (uppercase).
+.TP
+.B %b
+Prints unsigned int in binary.
+.TP
+.B %p
+Prints pointer address.
 .TP
 .B %%
-A literal
-.B %
-is written. No argument is consumed.
-
+Prints a literal percent sign.
 .SH RETURN VALUE
-Upon successful return,
-.B _printf()
-returns the number of characters printed (excluding the null byte used
-to end output to strings).
-.PP
-If
-.I format
-is
-.BR NULL ,
-the function returns
-.BR \-1 .
-
-.SH EXAMPLES
-.SS Print a simple string
+Returns the number of characters printed, or -1 on error.
+.SH EXAMPLE
 .nf
-_printf("Hello, World!\\n");
+#include "main.h"
+
+int main(void)
+{
+    _printf("Hello, %s!\n", "World");
+    _printf("Number: %d\n", 42);
+    return (0);
+}
 .fi
-.PP
-Output:
-.B Hello, World!
-
-.SS Print a character
-.nf
-_printf("Letter: %c\\n", 'A');
-.fi
-.PP
-Output:
-.B Letter: A
-
-.SS Print a string variable
-.nf
-_printf("Name: %s\\n", "Holberton");
-.fi
-.PP
-Output:
-.B Name: Holberton
-
-.SS Print a literal percent sign
-.nf
-_printf("100%%\\n");
-.fi
-.PP
-Output:
-.B 100%
-
-.SS Handle NULL string
-.nf
-_printf("Value: %s\\n", NULL);
-.fi
-.PP
-Output:
-.B Value: (null)
-
-.SS Unknown specifier
-.nf
-_printf("%r\\n");
-.fi
-.PP
-Output:
-.B %r
-
-.SH ERRORS
-.B _printf()
-returns \-1 in the following cases:
-.IP \(bu 3
-The
-.I format
-string is
-.BR NULL .
-.IP \(bu
-A
-.B %
-character is the last character in the format string (incomplete specifier).
-
-.SH CONFORMING TO
-This function is a simplified implementation of
-.BR printf (3)
-from the C standard library. It does not support field widths, precision,
-length modifiers, flags, or numeric conversion specifiers such as
-.BR %d ", " %i ", " %u ", " %o ", " %x ", or " %X .
-
 .SH SEE ALSO
-.BR printf (3),
-.BR write (2),
-.BR stdarg (3),
-.BR va_start (3),
-.BR va_arg (3),
-.BR va_end (3)
-
+printf(3)
 .SH AUTHORS
-.B AbdullaH Alzara
-.RI ( https://github.com/JSAbdullaH )
-.br
-.B Afnan Aljohani
-.RI ( https://github.com/AfnanAljohani )
-.PP
+Afnan Aljohani and Abdullah Alzara
