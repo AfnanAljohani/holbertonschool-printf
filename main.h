@@ -12,12 +12,16 @@
  * @plus: flag for +
  * @space: flag for space
  * @hash: flag for #
+ * @l: length modifier l (long)
+ * @h: length modifier h (short)
  */
 typedef struct flags
 {
 	int plus;
 	int space;
 	int hash;
+	int l;
+	int h;
 } flags_t;
 
 /**
@@ -59,5 +63,6 @@ int print_unumber(unsigned long n, int base, int upper,
 	char *buf, int *idx);
 int _strlen(char *s);
 int parse_flags(const char *fmt, int *i, flags_t *fl);
+int parse_length(const char *fmt, int *i, flags_t *fl);
 
 #endif /* MAIN_H */

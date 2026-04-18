@@ -46,7 +46,7 @@ int pr_percent(va_list ap, char *buf, int *idx, flags_t *fl)
 }
 
 /**
- * pr_int - prints an integer
+ * pr_int - prints an integer (handles l/h modifiers)
  * @ap: va_list
  * @buf: buffer
  * @idx: index
@@ -55,9 +55,15 @@ int pr_percent(va_list ap, char *buf, int *idx, flags_t *fl)
  */
 int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	int n = va_arg(ap, int);
+	long n;
 	int count = 0;
 
+	if (fl->l)
+		n = va_arg(ap, long);
+	else if (fl->h)
+		n = (short)va_arg(ap, int);
+	else
+		n = va_arg(ap, int);
 	if (n >= 0)
 	{
 		if (fl->plus)
@@ -71,7 +77,7 @@ int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
 			count++;
 		}
 	}
-	count += print_number((long)n, 10, 0, buf, idx);
+	count += print_number(n, 10, 0, buf, idx);
 	return (count);
 }
 

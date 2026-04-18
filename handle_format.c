@@ -41,6 +41,8 @@ int parse_flags(const char *fmt, int *i, flags_t *fl)
 	fl->plus = 0;
 	fl->space = 0;
 	fl->hash = 0;
+	fl->l = 0;
+	fl->h = 0;
 	while (fmt[*i] == '+' || fmt[*i] == ' ' || fmt[*i] == '#')
 	{
 		if (fmt[*i] == '+')
@@ -56,14 +58,26 @@ int parse_flags(const char *fmt, int *i, flags_t *fl)
 }
 
 /**
- * skip_length - skips l/h length modifiers
+ * parse_length - parses l/h length modifiers
  * @fmt: format string
- * @i: pointer to current index
+ * @i: pointer to current index (advanced past modifiers)
+ * @fl: flags struct to fill
+ * Return: 1 if modifier found, 0 otherwise
  */
-static void skip_length(const char *fmt, int *i)
+int parse_length(const char *fmt, int *i, flags_t *fl)
 {
+	int found = 0;
+
 	while (fmt[*i] == 'l' || fmt[*i] == 'h')
+	{
+		if (fmt[*i] == 'l')
+			fl->l = 1;
+		else
+			fl->h = 1;
 		(*i)++;
+		found = 1;
+	}
+	return (found);
 }
 
 /**
@@ -84,7 +98,7 @@ int handle_format(const char *fmt, int *i, va_list ap,
 
 	(*i)++;
 	parse_flags(fmt, i, &fl);
-	skip_length(fmt, i);
+	parse_length(fmt, i, &fl);
 	if (fmt[*i] == '\0')
 		return (-1);
 	handler = get_handler(fmt[*i]);

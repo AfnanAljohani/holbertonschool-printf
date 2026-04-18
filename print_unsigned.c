@@ -1,19 +1,33 @@
 #include "main.h"
 
 /**
+ * get_unsigned_arg - gets unsigned arg based on length modifier
+ * @ap: va_list
+ * @fl: flags struct
+ * Return: the unsigned long value
+ */
+static unsigned long get_unsigned_arg(va_list ap, flags_t *fl)
+{
+	if (fl->l)
+		return (va_arg(ap, unsigned long));
+	if (fl->h)
+		return ((unsigned short)va_arg(ap, unsigned int));
+	return ((unsigned long)va_arg(ap, unsigned int));
+}
+
+/**
  * pr_unsigned - prints unsigned int
  * @ap: va_list
  * @buf: buffer
  * @idx: index
- * @fl: flags (unused)
+ * @fl: flags struct
  * Return: count
  */
 int pr_unsigned(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n = va_arg(ap, unsigned int);
+	unsigned long n = get_unsigned_arg(ap, fl);
 
-	(void)fl;
-	return (print_unumber((unsigned long)n, 10, 0, buf, idx));
+	return (print_unumber(n, 10, 0, buf, idx));
 }
 
 /**
@@ -26,7 +40,7 @@ int pr_unsigned(va_list ap, char *buf, int *idx, flags_t *fl)
  */
 int pr_octal(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n = va_arg(ap, unsigned int);
+	unsigned long n = get_unsigned_arg(ap, fl);
 	int c = 0;
 
 	if (fl->hash && n != 0)
@@ -34,7 +48,7 @@ int pr_octal(va_list ap, char *buf, int *idx, flags_t *fl)
 		add_to_buf(buf, idx, '0');
 		c++;
 	}
-	c += print_unumber((unsigned long)n, 8, 0, buf, idx);
+	c += print_unumber(n, 8, 0, buf, idx);
 	return (c);
 }
 
@@ -48,7 +62,7 @@ int pr_octal(va_list ap, char *buf, int *idx, flags_t *fl)
  */
 int pr_hex_low(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n = va_arg(ap, unsigned int);
+	unsigned long n = get_unsigned_arg(ap, fl);
 	int c = 0;
 
 	if (fl->hash && n != 0)
@@ -57,7 +71,7 @@ int pr_hex_low(va_list ap, char *buf, int *idx, flags_t *fl)
 		add_to_buf(buf, idx, 'x');
 		c += 2;
 	}
-	c += print_unumber((unsigned long)n, 16, 0, buf, idx);
+	c += print_unumber(n, 16, 0, buf, idx);
 	return (c);
 }
 
@@ -71,7 +85,7 @@ int pr_hex_low(va_list ap, char *buf, int *idx, flags_t *fl)
  */
 int pr_hex_up(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n = va_arg(ap, unsigned int);
+	unsigned long n = get_unsigned_arg(ap, fl);
 	int c = 0;
 
 	if (fl->hash && n != 0)
@@ -80,7 +94,7 @@ int pr_hex_up(va_list ap, char *buf, int *idx, flags_t *fl)
 		add_to_buf(buf, idx, 'X');
 		c += 2;
 	}
-	c += print_unumber((unsigned long)n, 16, 1, buf, idx);
+	c += print_unumber(n, 16, 1, buf, idx);
 	return (c);
 }
 
