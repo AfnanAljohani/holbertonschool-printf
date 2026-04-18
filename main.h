@@ -8,20 +8,28 @@
 #define BUF_SIZE 1024
 
 /**
- * struct flags - active format flags
+ * struct flags - active format flags, width and precision
  * @plus: flag for +
  * @space: flag for space
  * @hash: flag for #
+ * @zero: flag for 0 (pad with zeros)
+ * @minus: flag for - (left align)
  * @l: length modifier l (long)
  * @h: length modifier h (short)
+ * @width: minimum field width
+ * @precision: precision (-1 if not set)
  */
 typedef struct flags
 {
 	int plus;
 	int space;
 	int hash;
+	int zero;
+	int minus;
 	int l;
 	int h;
+	int width;
+	int precision;
 } flags_t;
 
 /**
@@ -64,5 +72,10 @@ int print_unumber(unsigned long n, int base, int upper,
 int _strlen(char *s);
 int parse_flags(const char *fmt, int *i, flags_t *fl);
 int parse_length(const char *fmt, int *i, flags_t *fl);
+int parse_width(const char *fmt, int *i, va_list ap, flags_t *fl);
+int parse_precision(const char *fmt, int *i, va_list ap, flags_t *fl);
+int num_len(long n, int base);
+int unum_len(unsigned long n, int base);
+int pad_output(char *buf, int *idx, int count, char pad);
 
 #endif /* MAIN_H */

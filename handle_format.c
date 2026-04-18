@@ -28,9 +28,26 @@ static int (*get_handler(char c))(va_list, char *, int *, flags_t *)
 }
 
 /**
- * parse_flags - parses +, space, # flags
+ * init_flags - initializes flags struct to defaults
+ * @fl: flags struct
+ */
+static void init_flags(flags_t *fl)
+{
+	fl->plus = 0;
+	fl->space = 0;
+	fl->hash = 0;
+	fl->zero = 0;
+	fl->minus = 0;
+	fl->l = 0;
+	fl->h = 0;
+	fl->width = 0;
+	fl->precision = -1;
+}
+
+/**
+ * parse_flags - parses +, space, #, 0, - flags
  * @fmt: format string
- * @i: pointer to current index (advanced past flags)
+ * @i: pointer to current index
  * @fl: flags struct to fill
  * Return: 1 if any flag found, 0 otherwise
  */
@@ -38,19 +55,19 @@ int parse_flags(const char *fmt, int *i, flags_t *fl)
 {
 	int found = 0;
 
-	fl->plus = 0;
-	fl->space = 0;
-	fl->hash = 0;
-	fl->l = 0;
-	fl->h = 0;
-	while (fmt[*i] == '+' || fmt[*i] == ' ' || fmt[*i] == '#')
+	while (fmt[*i] == '+' || fmt[*i] == ' ' || fmt[*i] == '#'
+		|| fmt[*i] == '0' || fmt[*i] == '-')
 	{
 		if (fmt[*i] == '+')
 			fl->plus = 1;
 		else if (fmt[*i] == ' ')
 			fl->space = 1;
-		else
+		else if (fmt[*i] == '#')
 			fl->hash = 1;
+		else if (fmt[*i] == '0')
+			fl->zero = 1;
+		else
+			fl->minus = 1;
 		(*i)++;
 		found = 1;
 	}
@@ -60,7 +77,7 @@ int parse_flags(const char *fmt, int *i, flags_t *fl)
 /**
  * parse_length - parses l/h length modifiers
  * @fmt: format string
- * @i: pointer to current index (advanced past modifiers)
+ * @i: pointer to current index
  * @fl: flags struct to fill
  * Return: 1 if modifier found, 0 otherwise
  */
@@ -97,7 +114,10 @@ int handle_format(const char *fmt, int *i, va_list ap,
 	int printed = 0;
 
 	(*i)++;
+	init_flags(&fl);
 	parse_flags(fmt, i, &fl);
+	parse_width(fmt, i, ap, &fl);
+	parse_precision(fmt, i, ap, &fl);
 	parse_length(fmt, i, &fl);
 	if (fmt[*i] == '\0')
 		return (-1);

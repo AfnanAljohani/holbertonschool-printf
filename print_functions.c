@@ -1,32 +1,57 @@
 #include "main.h"
 
 /**
- * pr_char - prints a char
+ * pr_char - prints a char with width
  * @ap: va_list
  * @buf: buffer
  * @idx: index
- * @fl: flags (unused)
- * Return: 1
+ * @fl: flags struct
+ * Return: count
  */
 int pr_char(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	(void)fl;
-	add_to_buf(buf, idx, (char)va_arg(ap, int));
-	return (1);
+	char c = (char)va_arg(ap, int);
+	int count = 0, pad = fl->width - 1;
+
+	if (!fl->minus && pad > 0)
+		count += pad_output(buf, idx, pad, ' ');
+	add_to_buf(buf, idx, c);
+	count++;
+	if (fl->minus && pad > 0)
+		count += pad_output(buf, idx, pad, ' ');
+	return (count);
 }
 
 /**
- * pr_string - prints a string
+ * pr_string - prints a string with width and precision
  * @ap: va_list
  * @buf: buffer
  * @idx: index
- * @fl: flags (unused)
- * Return: length printed
+ * @fl: flags struct
+ * Return: count
  */
 int pr_string(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	(void)fl;
-	return (add_str(buf, idx, va_arg(ap, char *)));
+	char *s = va_arg(ap, char *);
+	int len, i = 0, count = 0, pad;
+
+	if (s == NULL)
+		s = "(null)";
+	len = _strlen(s);
+	if (fl->precision >= 0 && fl->precision < len)
+		len = fl->precision;
+	pad = fl->width - len;
+	if (!fl->minus && pad > 0)
+		count += pad_output(buf, idx, pad, ' ');
+	while (i < len)
+	{
+		add_to_buf(buf, idx, s[i]);
+		i++;
+		count++;
+	}
+	if (fl->minus && pad > 0)
+		count += pad_output(buf, idx, pad, ' ');
+	return (count);
 }
 
 /**
@@ -46,17 +71,18 @@ int pr_percent(va_list ap, char *buf, int *idx, flags_t *fl)
 }
 
 /**
- * pr_int - prints an integer (handles l/h modifiers)
+ * pr_int - prints integer with width, precision, flags
  * @ap: va_list
  * @buf: buffer
  * @idx: index
  * @fl: flags struct
- * Return: count printed
+ * Return: count
  */
 int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
 {
 	long n;
-	int count = 0;
+	int count = 0, sign = 0, nlen, pad;
+	char signc = 0, padc;
 
 	if (fl->l)
 		n = va_arg(ap, long);
@@ -64,21 +90,50 @@ int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
 		n = (short)va_arg(ap, int);
 	else
 		n = va_arg(ap, int);
-	if (n >= 0)
+	if (n < 0)
 	{
-		if (fl->plus)
-		{
-			add_to_buf(buf, idx, '+');
-			count++;
-		}
-		else if (fl->space)
-		{
-			add_to_buf(buf, idx, ' ');
-			count++;
-		}
+		signc = '-';
+		sign = 1;
 	}
-	count += print_number(n, 10, 0, buf, idx);
-	return (count);
+	else if (fl->plus)
+	{
+		signc = '+';
+		sign = 1;
+	}
+	else if (fl->space)
+	{
+		signc = ' ';
+		sign = 1;
+	}
+	nlen = num_len(n, 10);
+	if (n < 0)
+		nlen--;
+	if (fl->precision > nlen)
+		pad = fl->width - sign - fl->precision;
+	else
+		pad = fl->width - sign - nlen;
+	padc = (fl->zero && !fl->minus && fl->precision < 0) ? '0' : ' ';
+	if (!fl->minus && padc == ' ' && pad > 0)
+		count += pad_output(buf, idx, pad, ' ');
+	if (signc)
+	{
+		add_to_buf(buf, idx, signc);
+		count++;
+	}
+	if (!fl->minus && padc == '0' && pad > 0)
+		count += pad_output(buf, idx, pad, '0');
+	if (fl->precision > nlen)
+		count += pad_output(buf, idx, fl->precision - nlen, '0');
+	if (!(n == 0 && fl->precision == 0))
+	{
+		if (n < 0)
+			count += print_number(n, 10, 0, buf, idx) - 1;
+		else
+			count += print_number(n, 10, 0, buf, idx);
+	}
+	if (fl->minus && pad > 0)
+		count += pad_output(buf, idx, pad, ' ');
+	return (count + sign);
 }
 
 /**
@@ -87,7 +142,7 @@ int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
  * @buf: buffer
  * @idx: index
  * @fl: flags (unused)
- * Return: count printed
+ * Return: count
  */
 int pr_binary(va_list ap, char *buf, int *idx, flags_t *fl)
 {
