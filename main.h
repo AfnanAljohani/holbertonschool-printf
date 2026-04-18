@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#define BUFFER_SIZE 1024
+
 /**
  * struct spec - Struct for specifiers
  * @specifier: The character

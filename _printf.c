@@ -1,7 +1,5 @@
 #include "main.h"
 
-int handle_specifier(char c, va_list args, char *buf, int *idx);
-
 /**
  * flush_buffer - writes the buffer to stdout and resets index
  * @buf: the buffer
@@ -24,21 +22,22 @@ void flush_buffer(char *buf, int *idx)
  */
 void buffer_add(char *buf, int *idx, char c)
 {
-	if (*idx >= 1024)
+	if (*idx >= BUFFER_SIZE)
 		flush_buffer(buf, idx);
 	buf[*idx] = c;
 	(*idx)++;
 }
 
 /**
- * _printf - produces output according to a format with buffer
+ * _printf - produces output according to a format, using a 1024-char
+ *           local buffer to minimize write() syscalls
  * @format: the format string
  * Return: number of characters printed, or -1 on error
  */
 int _printf(const char *format, ...)
 {
 	va_list args;
-	char buf[1024];
+	char buf[BUFFER_SIZE];
 	int idx = 0;
 	int i = 0;
 	int count = 0;
@@ -55,6 +54,7 @@ int _printf(const char *format, ...)
 			if (format[i] == '\0')
 			{
 				flush_buffer(buf, &idx);
+				va_end(args);
 				return (-1);
 			}
 			flush_buffer(buf, &idx);
