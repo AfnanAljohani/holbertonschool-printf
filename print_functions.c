@@ -81,8 +81,9 @@ int pr_percent(va_list ap, char *buf, int *idx, flags_t *fl)
 int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
 {
 	long n;
-	int count = 0, sign = 0, nlen, pad;
-	char signc = 0, padc;
+	unsigned long un;
+	char signc = 0, padc = ' ';
+	int nlen, total, pad, count = 0, prec = fl->precision;
 
 	if (fl->l)
 		n = va_arg(ap, long);
@@ -93,26 +94,26 @@ int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
 	if (n < 0)
 	{
 		signc = '-';
-		sign = 1;
+		un = (unsigned long)(-n);
 	}
-	else if (fl->plus)
-	{
-		signc = '+';
-		sign = 1;
-	}
-	else if (fl->space)
-	{
-		signc = ' ';
-		sign = 1;
-	}
-	nlen = num_len(n, 10);
-	if (n < 0)
-		nlen--;
-	if (fl->precision > nlen)
-		pad = fl->width - sign - fl->precision;
 	else
-		pad = fl->width - sign - nlen;
-	padc = (fl->zero && !fl->minus && fl->precision < 0) ? '0' : ' ';
+	{
+		un = (unsigned long)n;
+		if (fl->plus)
+			signc = '+';
+		else if (fl->space)
+			signc = ' ';
+	}
+	nlen = unum_len(un, 10);
+	if (prec == 0 && un == 0)
+		nlen = 0;
+	if (prec > nlen)
+		total = (signc ? 1 : 0) + prec;
+	else
+		total = (signc ? 1 : 0) + nlen;
+	pad = fl->width - total;
+	if (fl->zero && !fl->minus && prec < 0)
+		padc = '0';
 	if (!fl->minus && padc == ' ' && pad > 0)
 		count += pad_output(buf, idx, pad, ' ');
 	if (signc)
@@ -122,18 +123,13 @@ int pr_int(va_list ap, char *buf, int *idx, flags_t *fl)
 	}
 	if (!fl->minus && padc == '0' && pad > 0)
 		count += pad_output(buf, idx, pad, '0');
-	if (fl->precision > nlen)
-		count += pad_output(buf, idx, fl->precision - nlen, '0');
-	if (!(n == 0 && fl->precision == 0))
-	{
-		if (n < 0)
-			count += print_number(n, 10, 0, buf, idx) - 1;
-		else
-			count += print_number(n, 10, 0, buf, idx);
-	}
+	if (prec > nlen)
+		count += pad_output(buf, idx, prec - nlen, '0');
+	if (nlen > 0)
+		count += print_unumber(un, 10, 0, buf, idx);
 	if (fl->minus && pad > 0)
 		count += pad_output(buf, idx, pad, ' ');
-	return (count + sign);
+	return (count);
 }
 
 /**
