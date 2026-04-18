@@ -1,103 +1,108 @@
 #include "main.h"
 
 /**
- * print_unsigned - prints unsigned int using single write
- * @args: va_list
- * Return: chars printed
+ * pr_unsigned - prints unsigned int
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags (unused)
+ * Return: count
  */
-int print_unsigned(va_list args)
+int pr_unsigned(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n;
-	char buf[12];
-	int i = 11;
-	int count;
+	unsigned int n = va_arg(ap, unsigned int);
 
-	n = va_arg(args, unsigned int);
-	if (n == 0)
-		return (write(1, "0", 1));
-	while (n > 0)
-	{
-		buf[i--] = '0' + (n % 10);
-		n /= 10;
-	}
-	count = 11 - i;
-	write(1, &buf[i + 1], count);
-	return (count);
+	(void)fl;
+	return (print_unumber((unsigned long)n, 10, 0, buf, idx));
 }
 
 /**
- * print_octal - prints octal using single write
- * @args: va_list
- * Return: chars printed
+ * pr_octal - prints unsigned int in octal
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags struct
+ * Return: count
  */
-int print_octal(va_list args)
+int pr_octal(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n;
-	char buf[16];
-	int i = 15;
-	int count;
+	unsigned int n = va_arg(ap, unsigned int);
+	int c = 0;
 
-	n = va_arg(args, unsigned int);
-	if (n == 0)
-		return (write(1, "0", 1));
-	while (n > 0)
+	if (fl->hash && n != 0)
 	{
-		buf[i--] = '0' + (n % 8);
-		n /= 8;
+		add_to_buf(buf, idx, '0');
+		c++;
 	}
-	count = 15 - i;
-	write(1, &buf[i + 1], count);
-	return (count);
+	c += print_unumber((unsigned long)n, 8, 0, buf, idx);
+	return (c);
 }
 
 /**
- * print_hex_lower - prints hex lowercase using single write
- * @args: va_list
- * Return: chars printed
+ * pr_hex_low - prints unsigned int in lowercase hex
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags struct
+ * Return: count
  */
-int print_hex_lower(va_list args)
+int pr_hex_low(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n;
-	char buf[16];
-	int i = 15;
-	int count;
-	char *hex = "0123456789abcdef";
+	unsigned int n = va_arg(ap, unsigned int);
+	int c = 0;
 
-	n = va_arg(args, unsigned int);
-	if (n == 0)
-		return (write(1, "0", 1));
-	while (n > 0)
+	if (fl->hash && n != 0)
 	{
-		buf[i--] = hex[n % 16];
-		n /= 16;
+		add_to_buf(buf, idx, '0');
+		add_to_buf(buf, idx, 'x');
+		c += 2;
 	}
-	count = 15 - i;
-	write(1, &buf[i + 1], count);
-	return (count);
+	c += print_unumber((unsigned long)n, 16, 0, buf, idx);
+	return (c);
 }
 
 /**
- * print_hex_upper - prints hex uppercase using single write
- * @args: va_list
- * Return: chars printed
+ * pr_hex_up - prints unsigned int in uppercase hex
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags struct
+ * Return: count
  */
-int print_hex_upper(va_list args)
+int pr_hex_up(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned int n;
-	char buf[16];
-	int i = 15;
-	int count;
-	char *hex = "0123456789ABCDEF";
+	unsigned int n = va_arg(ap, unsigned int);
+	int c = 0;
 
-	n = va_arg(args, unsigned int);
-	if (n == 0)
-		return (write(1, "0", 1));
-	while (n > 0)
+	if (fl->hash && n != 0)
 	{
-		buf[i--] = hex[n % 16];
-		n /= 16;
+		add_to_buf(buf, idx, '0');
+		add_to_buf(buf, idx, 'X');
+		c += 2;
 	}
-	count = 15 - i;
-	write(1, &buf[i + 1], count);
-	return (count);
+	c += print_unumber((unsigned long)n, 16, 1, buf, idx);
+	return (c);
+}
+
+/**
+ * pr_pointer - prints a pointer address
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags (unused)
+ * Return: count
+ */
+int pr_pointer(va_list ap, char *buf, int *idx, flags_t *fl)
+{
+	void *p = va_arg(ap, void *);
+	int c = 0;
+
+	(void)fl;
+	if (p == NULL)
+		return (add_str(buf, idx, "(nil)"));
+	add_to_buf(buf, idx, '0');
+	add_to_buf(buf, idx, 'x');
+	c = 2;
+	c += print_unumber((unsigned long)p, 16, 0, buf, idx);
+	return (c);
 }

@@ -1,76 +1,99 @@
 #include "main.h"
 
 /**
- * print_S - prints string, non-printable chars as \x followed by ASCII in hex
- * @args: va_list containing the string
- * Return: number of characters printed
+ * pr_S - prints string with non-printables as \\x hex
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags (unused)
+ * Return: count
  */
-int print_S(va_list args)
+int pr_S(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	char *str;
-	int i;
-	int count;
-	char *hex = "0123456789ABCDEF";
+	char *s = va_arg(ap, char *);
+	int i = 0, c = 0;
+	unsigned char ch;
 
-	str = va_arg(args, char *);
-	if (str == NULL)
-		str = "(null)";
-	count = 0;
-	for (i = 0; str[i] != '\0'; i++)
+	(void)fl;
+	if (s == NULL)
+		return (add_str(buf, idx, "(null)"));
+	while (s[i])
 	{
-		if (str[i] < 32 || str[i] >= 127)
+		ch = (unsigned char)s[i];
+		if (ch != 0 && (ch < 32 || ch >= 127))
 		{
-			_putchar('\\');
-			_putchar('x');
-			if ((unsigned char)str[i] < 16)
-				_putchar('0');
-			_putchar(hex[(unsigned char)str[i] / 16]);
-			_putchar(hex[(unsigned char)str[i] % 16]);
-			count += 4;
+			add_to_buf(buf, idx, '\\');
+			add_to_buf(buf, idx, 'x');
+			c += 2;
+			if (ch < 16)
+			{
+				add_to_buf(buf, idx, '0');
+				c++;
+			}
+			c += print_unumber((unsigned long)ch, 16, 1, buf, idx);
 		}
 		else
 		{
-			_putchar(str[i]);
-			count++;
+			add_to_buf(buf, idx, s[i]);
+			c++;
 		}
+		i++;
 	}
-	return (count);
+	return (c);
 }
 
 /**
- * print_pointer - prints pointer address in hex
- * @args: va_list containing the pointer
- * Return: number of characters printed
+ * pr_rev - prints string reversed
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags (unused)
+ * Return: count
  */
-int print_pointer(va_list args)
+int pr_rev(va_list ap, char *buf, int *idx, flags_t *fl)
 {
-	unsigned long int p;
-	int count;
-	int i;
-	char digits[20];
-	char *hex = "0123456789abcdef";
+	char *s = va_arg(ap, char *);
+	int len, c = 0;
 
-	p = va_arg(args, unsigned long int);
-	if (p == 0)
+	(void)fl;
+	if (s == NULL)
+		s = "(null)";
+	len = _strlen(s);
+	while (len-- > 0)
 	{
-		write(1, "(nil)", 5);
-		return (5);
+		add_to_buf(buf, idx, s[len]);
+		c++;
 	}
-	write(1, "0x", 2);
-	count = 2;
-	i = 0;
-	while (p > 0)
+	return (c);
+}
+
+/**
+ * pr_rot13 - prints string in rot13
+ * @ap: va_list
+ * @buf: buffer
+ * @idx: index
+ * @fl: flags (unused)
+ * Return: count
+ */
+int pr_rot13(va_list ap, char *buf, int *idx, flags_t *fl)
+{
+	char *s = va_arg(ap, char *);
+	int i = 0, c = 0;
+	char ch;
+
+	(void)fl;
+	if (s == NULL)
+		s = "(null)";
+	while (s[i])
 	{
-		digits[i] = hex[p % 16];
-		p /= 16;
+		ch = s[i];
+		if ((ch >= 'a' && ch <= 'z'))
+			ch = (ch - 'a' + 13) % 26 + 'a';
+		else if ((ch >= 'A' && ch <= 'Z'))
+			ch = (ch - 'A' + 13) % 26 + 'A';
+		add_to_buf(buf, idx, ch);
+		c++;
 		i++;
 	}
-	i--;
-	while (i >= 0)
-	{
-		_putchar(digits[i]);
-		count++;
-		i--;
-	}
-	return (count);
+	return (c);
 }

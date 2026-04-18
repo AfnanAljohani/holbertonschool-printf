@@ -5,36 +5,59 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define BUFFER_SIZE 1024
+#define BUF_SIZE 1024
 
 /**
- * struct spec - Struct for specifiers
- * @specifier: The character
- * @func: The function associated
+ * struct flags - active format flags
+ * @plus: flag for +
+ * @space: flag for space
+ * @hash: flag for #
  */
-typedef struct spec
+typedef struct flags
 {
-	char specifier;
-	int (*func)(va_list);
-} spec_t;
+	int plus;
+	int space;
+	int hash;
+} flags_t;
+
+/**
+ * struct conv - maps specifier to handler
+ * @spec: specifier character
+ * @f: pointer to handler function
+ */
+typedef struct conv
+{
+	char spec;
+	int (*f)(va_list, char *, int *, flags_t *);
+} conv_t;
 
 int _printf(const char *format, ...);
-int _putchar(char c);
 void flush_buffer(char *buf, int *idx);
-void buffer_add(char *buf, int *idx, char c);
-int handle_specifier(char c, va_list args, char *buf, int *idx);
-int print_char(va_list args);
-int print_string(va_list args);
-int print_percent(va_list args);
-int print_int(va_list args);
-int print_int_helper(unsigned int n);
-int print_binary(va_list args);
-int print_unsigned(va_list args);
-int print_octal(va_list args);
-int print_hex_lower(va_list args);
-int print_hex_upper(va_list args);
-int print_S(va_list args);
-int print_pointer(va_list args);
-int (*get_func(char s))(va_list);
+void add_to_buf(char *buf, int *idx, char c);
+int add_str(char *buf, int *idx, char *s);
+int handle_format(const char *fmt, int *i, va_list ap,
+	char *buf, int *idx);
+
+int pr_char(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_string(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_percent(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_int(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_binary(va_list ap, char *buf, int *idx, flags_t *fl);
+
+int pr_unsigned(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_octal(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_hex_low(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_hex_up(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_pointer(va_list ap, char *buf, int *idx, flags_t *fl);
+
+int pr_S(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_rev(va_list ap, char *buf, int *idx, flags_t *fl);
+int pr_rot13(va_list ap, char *buf, int *idx, flags_t *fl);
+
+int print_number(long n, int base, int upper, char *buf, int *idx);
+int print_unumber(unsigned long n, int base, int upper,
+	char *buf, int *idx);
+int _strlen(char *s);
+int parse_flags(const char *fmt, int *i, flags_t *fl);
 
 #endif /* MAIN_H */
