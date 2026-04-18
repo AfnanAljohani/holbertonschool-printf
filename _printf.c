@@ -1,77 +1,54 @@
 #include "main.h"
 
 /**
- * struct format_s - Struct for format specifiers
- * @spec: The format specifier character
- * @func: The function to handle it
- */
-typedef struct format_s
-{
-	char spec;
-	int (*func)(va_list);
-} format_t;
-
-/**
- * get_func - Returns the function matching the specifier
- * @s: The specifier character
- * @ops: Array of format_t structs
- * Return: Pointer to function, or NULL
- */
-int (*get_func(char s, format_t *ops))(va_list)
-{
-	int i;
-
-	for (i = 0; ops[i].func != NULL; i++)
-	{
-		if (ops[i].spec == s)
-			return (ops[i].func);
-	}
-	return (NULL);
-}
-
-/**
- * _printf - Produces output according to a format
+ * _printf - Produces output according to a format, using a local 1024-byte
+ *           buffer to minimize the number of write() syscalls
  * @format: The format string
- * Return: Number of characters printed
+ *
+ * Return: Number of characters printed, or -1 on error
  */
 int _printf(const char *format, ...)
 {
 	va_list args;
+	buffer_t b;
 	int i = 0, count = 0;
-	int (*func)(va_list);
-	format_t ops[] = {
-		{'c', print_char},
-		{'s', print_string},
-		{'%', print_percent},
-		{0, NULL}
-	};
+	int (*func)(va_list, buffer_t *);
 
 	if (format == NULL)
 		return (-1);
+
+	b.len = 0;
 	va_start(args, format);
-	while (format[i])
+
+	while (format[i] != '\0')
 	{
 		if (format[i] == '%')
 		{
 			i++;
 			if (format[i] == '\0')
+			{
+				va_end(args);
 				return (-1);
-			func = get_func(format[i], ops);
-			if (func)
-				count += func(args);
+			}
+			func = get_func(format[i]);
+			if (func != NULL)
+			{
+				count += func(args, &b);
+			}
 			else
 			{
-				count += write(1, "%", 1);
-				count += write(1, &format[i], 1);
+				count += buffer_add_char(&b, '%');
+				count += buffer_add_char(&b, format[i]);
 			}
 		}
 		else
 		{
-			write(1, &format[i], 1);
-			count++;
+			count += buffer_add_char(&b, format[i]);
 		}
 		i++;
 	}
+
 	va_end(args);
+	buffer_flush(&b);
 	return (count);
 }
