@@ -4,6 +4,12 @@ A custom implementation of the C standard library `printf` function, developed a
 
 ---
 
+## See it run
+
+`_printf` next to the standard `printf`, built from this repo with [`docs/demo_main.c`](docs/demo_main.c). Both print the same line and return the same length.
+
+![_printf demo](docs/demo.png)
+
 ## Table of Contents
 
 - [Description](#description)
